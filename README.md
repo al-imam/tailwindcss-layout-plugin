@@ -1,4 +1,4 @@
-# tailwindcss-layout
+# tailwind-layout
 
 This Tailwind CSS layout plugin provides an alternative to the standard container and offers increased flexibility in defining layout strategies.
 
@@ -8,9 +8,9 @@ Install the plugin from npm:
 
 ```sh
 
-npm install -D tailwindcss-layout
-yarn add -D tailwindcss-layout
-pnpm add -D tailwindcss-layout
+npm install -D tailwind-layout
+yarn add -D tailwind-layout
+pnpm add -D tailwind-layout
 
 ```
 
@@ -23,7 +23,7 @@ module.exports = {
     // ...
   },
   plugins: [
-    require("tailwindcss-layout"),
+    require("tailwind-layout"),
     // ...
   ],
 }
@@ -31,7 +31,7 @@ module.exports = {
 
 ## Basic usage
 
-[**View the live demo**](https://tailwindcss-layout.vercel.app/)
+[**View the live demo**](https://tailwind-layout.vercel.app/)
 
 Initiate tailwindcss-layout
 
@@ -40,7 +40,7 @@ module.exports = {
   // other options
 
   plugins: [
-    require("tailwindcss-layout")({
+    require("tailwind-layout")({
       strategy: "container",
       gap: {
         DEFAULT: "1rem",
@@ -80,14 +80,14 @@ Here's an explanation for each class used in the provided HTML:
 
 ## Options
 
-### `strategy`
+### strategy
 
 Specifies the layout strategy to be used.
 
 - Type: `"container"` | `"auto"`
 - Default: `"auto"`
 
-### `content`
+### content
 
 This setting defines the layout for the content area. The provided value will only be applied if the strategy is set to `container`. Otherwise, it will exclusively work for `screen` size specifications. Additionally, it automatically defaults to `theme("screens")`, and your configuration will override this default.
 
@@ -96,7 +96,7 @@ This setting defines the layout for the content area. The provided value will on
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive screen sizes for content.
   - `sm: { max: CSSValue; width: CSSValue } | CSSValue`: Directly set a custom size using a CSS value.
 
-### `popout`
+### popout
 
 This sets up the layout for `popout` elements. The given value will be added to the `content` width to determine the final value.
 
@@ -105,7 +105,7 @@ This sets up the layout for `popout` elements. The given value will be added to 
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive sizes for popout.
   - `CSSValue`: Directly set a custom size using a CSS value.
 
-### `feature`
+### feature
 
 This sets up the layout for `feature` elements. The given value will be added to the `content` width and previous `popout` value to determine the final value.
 
@@ -114,23 +114,23 @@ This sets up the layout for `feature` elements. The given value will be added to
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive sizes for featured elements.
   - `CSSValue`: Directly set a custom size using a CSS value.
 
-### `gap`
+### gap
 
-Specifies the _padding-inline_ value _gap_ will not apply to _content-expand_.
+Specifies the `padding-inline` value `gap` will not apply to `content-expand`.
 
 - Type: `Screens | CSSValue`
   - `DEFAULT`: Default gap size.
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive gap sizes.
   - `CSSValue`: Directly set a custom gap size using a CSS value.
 
-### `maxWidth`
+### maxWidth
 
 Sets the maximum width for the layout. **Note - `maxWidth` only work with `strategy: "auto"`**
 
 - Type: `CSSValue`
 - Default: `"900px"`
 
-### `prefix`
+### prefix
 
 The prefix option allows you to append a prefix to all generated class names. This feature proves beneficial when you need multiple instances of the tailwindcss-layout with different configurations.
 
