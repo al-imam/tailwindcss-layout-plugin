@@ -1,9 +1,7 @@
 const plugin = require("tailwindcss/plugin")
 
-function responsiveValues({ gap, feature, popout, maxWidth, content, strategy }) {
+function getMediaQuery({ gap, feature, popout, maxWidth, content, strategy }) {
   const apply = strategy === "container"
-
-  console.log(content)
 
   return {
     [`@media (min-width: ${content.sm.max})`]: {
@@ -42,7 +40,25 @@ function responsiveValues({ gap, feature, popout, maxWidth, content, strategy })
   }
 }
 
-const defaultScreenSizesObj = {
+function sanitizeClassName(_className) {
+  return _className.replace(/[^a-z0-9_-]/gi, "")
+}
+
+function sanitizeCssVariable(_name) {
+  return _name.replace(/^-+/gi, "")
+}
+
+function prefixClassName(_fix, _className) {
+  if (!_fix) return `.${sanitizeClassName(_className)}`
+  return `.${_fix}-${sanitizeClassName(_className)}`
+}
+
+function prefixCssVariable(_fix, _name) {
+  if (!_fix) return `--${sanitizeCssVariable(_name)}`
+  return `--${_fix}-${sanitizeCssVariable(_name)}`
+}
+
+const defaultScreensSize = {
   DEFAULT: { max: "0rem", width: "100%" },
   sm: { max: "640px", width: "640px" },
   md: { max: "768px", width: "768px" },
@@ -51,23 +67,23 @@ const defaultScreenSizesObj = {
   "2xl": { max: "1536px", width: "1536px" },
 }
 
-function mapScreenSizes(_value) {
-  return { DEFAULT: _value, md: _value, sm: _value, lg: _value, xl: _value, "2xl": _value }
+function formatScreensValue(_value) {
+  return Object.keys(defaultScreensSize).map((key) => ({ [key]: _value }))
 }
 
-function mapMediaScreenSizes(value, screen) {
-  if (!value)
-    return { max: defaultScreenSizesObj[screen].max, width: defaultScreenSizesObj[screen].width }
-  if (typeof value === "string") return { max: defaultScreenSizesObj[screen].max, width: value }
-  if (typeof value === "object" && value.max && value.width) {
-    return { max: value.max, width: value.width }
+function formatMediaScreensSize(_value, _screen) {
+  if (!_value)
+    return { max: defaultScreensSize[_screen].max, width: defaultScreensSize[_screen].width }
+  if (typeof _value === "string") return { max: defaultScreensSize[_screen].max, width: _value }
+  if (typeof _value === "object" && _value.max && _value.width) {
+    return { max: _value.max, width: _value.width }
   }
 
-  throw new Error(`${JSON.stringify(value)} is not valid screen size value`)
+  throw new Error(`${JSON.stringify(_value)} is not valid screen size value`)
 }
 
-function getScreenSizes(_value) {
-  if (typeof _value === "string") return mapScreenSizes(_value)
+function getScreensValue(_value) {
+  if (typeof _value === "string") return formatScreensValue(_value)
   if (typeof _value === "object") {
     for (const key in _value) {
       if (typeof _value[key] !== "string") {
@@ -75,39 +91,39 @@ function getScreenSizes(_value) {
       }
     }
 
-    const computedGap = {}
+    const obj = {}
 
-    computedGap.DEFAULT = _value.DEFAULT ?? "1rem"
-    computedGap.sm = _value.sm ?? computedGap.DEFAULT
-    computedGap.md = _value.md ?? computedGap.sm
-    computedGap.lg = _value.lg ?? computedGap.md
-    computedGap.xl = _value.xl ?? computedGap.lg
-    computedGap["2xl"] = _value["2xl"] ?? computedGap.xl
+    obj.DEFAULT = _value.DEFAULT ?? "1rem"
+    obj.sm = _value.sm ?? obj.DEFAULT
+    obj.md = _value.md ?? obj.sm
+    obj.lg = _value.lg ?? obj.md
+    obj.xl = _value.xl ?? obj.lg
+    obj["2xl"] = _value["2xl"] ?? obj.xl
 
-    return computedGap
+    return obj
   }
 
-  throw new Error(`${JSON.stringify(_value ?? null)} is not valid css value`)
+  throw new Error(`${JSON.stringify(_value ?? null)} is not valid screen value`)
 }
 
-function getMediaScreenSizes(_value) {
+function getMediaScreensSizes(_value) {
   if (typeof _value === "object") {
     for (const key in _value) {
       if (typeof _value[key] !== "string" && !(_value instanceof Object)) {
-        throw new Error(`${JSON.stringify(_value)} is not valid`)
+        throw new Error(`${JSON.stringify(_value[key])} is not valid screen value`)
       }
     }
 
-    const computedGap = {}
+    const obj = {}
 
-    computedGap.DEFAULT = mapMediaScreenSizes(_value.DEFAULT, "DEFAULT")
-    computedGap.sm = mapMediaScreenSizes(_value.sm, "sm")
-    computedGap.md = mapMediaScreenSizes(_value.md, "md")
-    computedGap.lg = mapMediaScreenSizes(_value.lg, "lg")
-    computedGap.xl = mapMediaScreenSizes(_value.xl, "xl")
-    computedGap["2xl"] = mapMediaScreenSizes(_value["2xl"], "2xl")
+    obj.DEFAULT = formatMediaScreensSize(_value.DEFAULT, "DEFAULT")
+    obj.sm = formatMediaScreensSize(_value.sm, "sm")
+    obj.md = formatMediaScreensSize(_value.md, "md")
+    obj.lg = formatMediaScreensSize(_value.lg, "lg")
+    obj.xl = formatMediaScreensSize(_value.xl, "xl")
+    obj["2xl"] = formatMediaScreensSize(_value["2xl"], "2xl")
 
-    return computedGap
+    return obj
   }
 
   throw new Error(`'${JSON.stringify(_value ?? null)}' is not valid media screen size value`)
@@ -116,13 +132,13 @@ function getMediaScreenSizes(_value) {
 const content = plugin.withOptions(function (options = {}) {
   return function ({ addComponents, theme }) {
     options.strategy ??= "auto"
-    options.gap = getScreenSizes(options.gap ?? theme("container.padding") ?? "1rem")
+    options.gap = getScreensValue(options.gap ?? theme("container.padding") ?? "1rem")
     options.maxWidth ??= "56.25rem"
-    options.content = getMediaScreenSizes(
-      options.content ?? theme("screens") ?? defaultScreenSizesObj
+    options.content = getMediaScreensSizes(
+      options.content ?? theme("screens") ?? defaultScreensSize
     )
-    options.popout = getScreenSizes(options.popout ?? "2rem")
-    options.feature = getScreenSizes(options.feature ?? "5rem")
+    options.popout = getScreensValue(options.popout ?? "2rem")
+    options.feature = getScreensValue(options.feature ?? "5rem")
 
     const rules = [
       {
@@ -160,7 +176,7 @@ const content = plugin.withOptions(function (options = {}) {
             [full-end]
           `,
           },
-          responsiveValues(options)
+          getMediaQuery(options)
         ),
       },
 
