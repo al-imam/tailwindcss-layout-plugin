@@ -1,10 +1,10 @@
 {
-  "name": "@tailwindcss/forms",
-  "version": "0.5.7",
+  "name": "tailwindcss-content",
+  "version": "0.0.1",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "license": "MIT",
-  "repository": "https://github.com/tailwindlabs/tailwindcss-forms",
+  "repository": "https://github.com/al-imam/tailwindcss-content",
   "publishConfig": {
     "access": "public"
   },
@@ -29,8 +29,5 @@
     "live-server": "^1.2.2",
     "postcss": "^8.4.13",
     "tailwindcss": "^3.0.24"
-  },
-  "dependencies": {
-    "mini-svg-data-uri": "^1.2.3"
   }
 }
