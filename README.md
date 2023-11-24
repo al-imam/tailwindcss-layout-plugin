@@ -1,13 +1,17 @@
-# @tailwindcss/forms
+# tailwindcss-layout
 
-A plugin that provides a basic reset for form styles that makes form elements easy to override with utilities.
+This Tailwind CSS layout plugin provides an alternative to the standard container and offers increased flexibility in defining layout strategies.
 
 ## Installation
 
 Install the plugin from npm:
 
 ```sh
-npm install -D @tailwindcss/forms
+
+npm install -D tailwindcss-layout
+yarn add -D tailwindcss-layout
+pnpm add -D tailwindcss-layout
+
 ```
 
 Then add the plugin to your `tailwind.config.js` file:
@@ -19,7 +23,7 @@ module.exports = {
     // ...
   },
   plugins: [
-    require('@tailwindcss/forms'),
+    require("tailwindcss-layout"),
     // ...
   ],
 }
@@ -27,96 +31,114 @@ module.exports = {
 
 ## Basic usage
 
-[**View the live demo**](https://tailwindcss-forms.vercel.app/)
+[**View the live demo**](https://tailwindcss-layout.vercel.app/)
 
-All of the basic form elements you use will now have some simple default styles that are easy to override with utilities.
-
-Currently we add basic utility-friendly form styles for the following form element types:
-
-- `input[type='text']`
-- `input[type='password']`
-- `input[type='email']`
-- `input[type='number']`
-- `input[type='url']`
-- `input[type='date']`
-- `input[type='datetime-local']`
-- `input[type='month']`
-- `input[type='week']`
-- `input[type='time']`
-- `input[type='search']`
-- `input[type='tel']`
-- `input[type='checkbox']`
-- `input[type='radio']`
-- `select`
-- `select[multiple]`
-- `textarea`
-
-Every element has been normalized/reset to a simple visually consistent style that is easy to customize with utilities, even elements like `<select>` or `<input type="checkbox">` that normally need to be reset with `appearance: none` and customized using custom CSS:
-
-```html
-<!-- You can actually customize padding on a select element now: -->
-<select class="px-4 py-3 rounded-full">
-  <!-- ... -->
-</select>
-
-<!-- Or change a checkbox color using text color utilities: -->
-<input type="checkbox" class="rounded text-pink-500" />
-```
-
-More customization examples and best practices coming soon.
-
-### Using classes to style
-
-In addition to the global styles, we also generate a set of corresponding classes which can be used to explicitly apply the form styles to an element. This can be useful in situations where you need to make a non-form element, such as a `<div>`, look like a form element.
-
-```html
-<input type="email" class="form-input px-4 py-3 rounded-full">
-
-<select class="form-select px-4 py-3 rounded-full">
-  <!-- ... -->
-</select>
-
-<input type="checkbox" class="form-checkbox rounded text-pink-500" />
-```
-
-Here is a complete table of the provided `form-*` classes for reference:
-
-| Base                      | Class              |
-| ------------------------- | ------------------ |
-| `[type='text']`           | `form-input`       |
-| `[type='email']`          | `form-input`       |
-| `[type='url']`            | `form-input`       |
-| `[type='password']`       | `form-input`       |
-| `[type='number']`         | `form-input`       |
-| `[type='date']`           | `form-input`       |
-| `[type='datetime-local']` | `form-input`       |
-| `[type='month']`          | `form-input`       |
-| `[type='search']`         | `form-input`       |
-| `[type='tel']`            | `form-input`       |
-| `[type='time']`           | `form-input`       |
-| `[type='week']`           | `form-input`       |
-| `textarea`                | `form-textarea`    |
-| `select`                  | `form-select`      |
-| `select[multiple]`        | `form-multiselect` |
-| `[type='checkbox']`       | `form-checkbox`    |
-| `[type='radio']`          | `form-radio`       |
-
-### Using only global styles or only classes
-
-Although we recommend thinking of this plugin as a "form reset" rather than a collection of form component styles, in some cases our default approach may be too heavy-handed, especially when integrating this plugin into existing projects.
-
-If generating both the global (base) styles and classes doesn't work well with your project, you can use the `strategy` option to limit the plugin to just one of these approaches.
+Initiate tailwindcss-layout
 
 ```js
-// tailwind.config.js
-plugins: [
-  require("@tailwindcss/forms")({
-    strategy: 'base', // only generate global styles
-    strategy: 'class', // only generate classes
-  }),
-],
+module.exports = {
+  // other options
+
+  plugins: [
+    require("tailwindcss-layout")({
+      strategy: "container",
+      gap: {
+        DEFAULT: "1rem",
+        sm: "2rem",
+        md: "3rem",
+      },
+      content: {
+        "2xl": { max: "1440px", width: "1440px" },
+      },
+    }),
+  ],
+}
 ```
 
-When using the `base` strategy, form elements are styled globally, and no `form-{name}` classes are generated.
+Apply generated classes in markup
 
-When using the `class` strategy, form elements are not styled globally, and instead must be styled using the generated `form-{name}` classes.
+```html
+<main class="content">
+  <div class="content-full"></div>
+  <div class="content-expand"></div>
+  <div class="content-feature"></div>
+  <div class="content-popout"></div>
+</main>
+```
+
+Here's an explanation for each class used in the provided HTML:
+
+- `content` The main container class that encapsulates various layout elements. It serves as the overarching container for the entire layout structure.
+
+- `content-full` This class defines a content element that takes up the full width of its parent container but it's children's will maintain the layout. It is useful for components or sections that should span the entire width of the layout to change background appearance.
+
+- `content-expand` This class defines a content element as `content-full` but children's will not maintain any layout they are completely unstyled.
+
+- `content-popout` This class defines a content element that takes up `content-width` and additional popout value default is `2rem`.
+
+- `content-feature` This class defines a content element that takes up `content-width` and `popout` and additional feature value default is `5rem`.
+
+## Options
+
+### `strategy`
+
+Specifies the layout strategy to be used.
+
+- Type: `"container"` | `"auto"`
+- Default: `"auto"`
+
+### `content`
+
+This setting defines the layout for the content area. The provided value will only be applied if the strategy is set to `container`. Otherwise, it will exclusively work for `screen` size specifications. Additionally, it automatically defaults to `theme("screens")`, and your configuration will override this default.
+
+- Type: `ScreensMedia`
+  - `DEFAULT`: Default screen size for content.
+  - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive screen sizes for content.
+  - `sm: { max: CSSValue; width: CSSValue } | CSSValue`: Directly set a custom size using a CSS value.
+
+### `popout`
+
+This sets up the layout for `popout` elements. The given value will be added to the `content` width to determine the final value.
+
+- Type: `Screens | CSSValue`
+  - `DEFAULT`: Default size for popout.
+  - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive sizes for popout.
+  - `CSSValue`: Directly set a custom size using a CSS value.
+
+### `feature`
+
+This sets up the layout for `feature` elements. The given value will be added to the `content` width and previous `popout` value to determine the final value.
+
+- Type: `Screens | CSSValue`
+  - `DEFAULT`: Default size for featured elements.
+  - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive sizes for featured elements.
+  - `CSSValue`: Directly set a custom size using a CSS value.
+
+### `gap`
+
+Specifies the _padding-inline_ value _gap_ will not apply to _content-expand_.
+
+- Type: `Screens | CSSValue`
+  - `DEFAULT`: Default gap size.
+  - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive gap sizes.
+  - `CSSValue`: Directly set a custom gap size using a CSS value.
+
+### `maxWidth`
+
+Sets the maximum width for the layout. **Note - `maxWidth` only work with `strategy: "auto"`**
+
+- Type: `CSSValue`
+- Default: `"900px"`
+
+### `prefix`
+
+The prefix option allows you to append a prefix to all generated class names. This feature proves beneficial when you need multiple instances of the tailwindcss-layout with different configurations.
+
+- Type: `string`
+- Default: `""`
+
+---
+
+**Contributions Welcome!**
+
+Thank you for considering contributing to the project! If you have ideas, improvements, or bug fixes, feel free to open an issue or submit a pull request. I appreciate your support in making this project better for everyone.

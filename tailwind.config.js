@@ -14,7 +14,7 @@ module.exports = {
         md: "3rem",
       },
       content: {
-        "2xl": { max: "1236px", width: "100px" },
+        "2xl": { max: "1236px", width: "1000px" },
       },
     }),
   ],
