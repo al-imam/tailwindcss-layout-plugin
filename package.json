@@ -1,10 +1,10 @@
 {
-  "name": "tailwindcss-content",
+  "name": "tailwindcss-layout",
   "version": "0.0.1",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "license": "MIT",
-  "repository": "https://github.com/al-imam/tailwindcss-content",
+  "repository": "https://github.com/al-imam/tailwindcss-layout-plugin",
   "publishConfig": {
     "access": "public"
   },

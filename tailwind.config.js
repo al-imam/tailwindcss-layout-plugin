@@ -1,21 +1,7 @@
 module.exports = {
-  content: ["./index.html", "./kitchen-sink.html"],
+  content: ["./index.html"],
   theme: {
-    extend: {
-      //
-    },
+    extend: {},
   },
-  plugins: [
-    require("./src")({
-      strategy: "container",
-      gap: {
-        DEFAULT: "1rem",
-        sm: "2rem",
-        md: "3rem",
-      },
-      content: {
-        "2xl": { max: "1236px", width: "1000px" },
-      },
-    }),
-  ],
+  plugins: [require("./src")],
 }

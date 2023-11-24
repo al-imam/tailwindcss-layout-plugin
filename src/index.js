@@ -44,18 +44,9 @@ function sanitizeClassName(_className) {
   return _className.replace(/[^a-z0-9_-]/gi, "")
 }
 
-function sanitizeCssVariable(_name) {
-  return _name.replace(/^-+/gi, "")
-}
-
 function prefixClassName(_fix, _className) {
   if (!_fix) return `.${sanitizeClassName(_className)}`
   return `.${_fix}-${sanitizeClassName(_className)}`
-}
-
-function prefixCssVariable(_fix, _name) {
-  if (!_fix) return `--${sanitizeCssVariable(_name)}`
-  return `--${_fix}-${sanitizeCssVariable(_name)}`
 }
 
 const defaultScreensSize = {
@@ -140,9 +131,21 @@ const content = plugin.withOptions(function (options = {}) {
     options.popout = getScreensValue(options.popout ?? "2rem")
     options.feature = getScreensValue(options.feature ?? "5rem")
 
+    if (options.prefix && /^[a-z][-a-z0-9_]*[0-9a-z]$/i.test(options.prefix) === false) {
+      throw new Error(`Invalid prefix '${options.prefix}'. Prefix must be a valid CSS class name.`)
+    }
+
+    const classContent = prefixClassName(options.prefix, "content")
+    const classPopout = prefixClassName(options.prefix, "content-popout")
+    const classFeature = prefixClassName(options.prefix, "content-feature")
+    const classFull = prefixClassName(options.prefix, "content-full")
+    const classExpand = prefixClassName(options.prefix, "content-expand")
+
+    const notContentClassName = `${classPopout}, ${classFeature}, ${classFull}, ${classExpand}`
+
     const rules = [
       {
-        ".content": Object.assign(
+        [classContent]: Object.assign(
           {
             "--content-max-width":
               options.strategy === "auto" ? options.maxWidth : options.content.DEFAULT.width,
@@ -182,28 +185,28 @@ const content = plugin.withOptions(function (options = {}) {
 
       {
         [[
-          ".content > :not(.content-popout, .content-feature, .content-full-width, .content-full-width-grow)",
-          ".content-full-width > :not(.content-popout, .content-feature, .content-full-width, .content-full-width-grow)",
+          `${classContent} > :not(${notContentClassName})`,
+          `${classFull} > :not(${notContentClassName})`,
         ]]: {
           gridColumn: "content",
         },
 
-        ".content > .content-popout": {
+        [`${classContent} > ${classPopout}`]: {
           gridColumn: "popout",
         },
 
-        ".content > .content-feature": {
+        [`${classContent} > ${classFeature}`]: {
           gridColumn: "feature",
         },
 
-        ".content > .content-full-width": {
+        [`${classContent} > ${classFull}`]: {
           gridColumn: "full",
           columnGap: "0 !important",
           display: "grid",
           gridTemplateColumns: "inherit",
         },
 
-        ".content > .content-full-width-grow": {
+        [`${classContent} > ${classExpand}`]: {
           gridColumn: "full",
         },
       },
