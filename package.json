@@ -1,6 +1,6 @@
 {
   "name": "tailwind-layout",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "license": "MIT",
@@ -20,7 +20,7 @@
   },
   "scripts": {
     "dev": "concurrently \"npm run serve\" \"npm run watch\"",
-    "serve": "live-server .",
+    "serve": "live-server . --no-browser",
     "watch": "npm run build -- -w",
     "build": "tailwindcss -o dist/tailwind.css"
   },

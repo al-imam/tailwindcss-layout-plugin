@@ -9,25 +9,13 @@ type Screens = Partial<{
   "2xl": CSSValue
 }>
 
-type MediaValue = { max: CSSValue; width: CSSValue } | CSSValue
-
-type ScreensMedia = Partial<{
-  DEFAULT: MediaValue
-  sm: MediaValue
-  md: MediaValue
-  lg: MediaValue
-  xl: MediaValue
-  "2xl": MediaValue
-}>
-
 declare function plugin(
   options?: Partial<{
-    strategy: "container" | "auto"
-    content: ScreensMedia
+    content: Screens | CSSValue
     popout: Screens | CSSValue
     feature: Screens | CSSValue
     gap: Screens | CSSValue
-    maxWidth: CSSValue
+    screens: Screens
     prefix: string
   }>
 ): {

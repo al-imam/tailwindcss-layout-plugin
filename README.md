@@ -41,14 +41,13 @@ module.exports = {
 
   plugins: [
     require("tailwind-layout")({
-      strategy: "container",
       gap: {
         DEFAULT: "1rem",
         sm: "2rem",
         md: "3rem",
       },
       content: {
-        "2xl": { max: "1440px", width: "1440px" },
+        "2xl": "1440px",
       },
     }),
   ],
@@ -80,21 +79,14 @@ Here's an explanation for each class used in the provided HTML:
 
 ## Options
 
-### strategy
-
-Specifies the layout strategy to be used.
-
-- Type: `"container"` | `"auto"`
-- Default: `"auto"`
-
 ### content
 
-This setting defines the layout for the content area. The provided value will only be applied if the strategy is set to `container`. Otherwise, it will exclusively work for `screen` size specifications. Additionally, it automatically defaults to `theme("screens")`, and your configuration will override this default.
+This setting defines the layout for the content area. The default behavior of tailwindcss-layout is tailwindcss container behavior if you want to change it to fluent behavior set set content a max-width (content: "1200px") this will be max-width or if you want to customize container behavior set content.(sm|md|lg|xl|2xl) to your desire width
 
-- Type: `ScreensMedia`
+- Type: `Screens | CSSValue`
   - `DEFAULT`: Default screen size for content.
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive screen sizes for content.
-  - `sm: { max: CSSValue; width: CSSValue } | CSSValue`: Directly set a custom size using a CSS value.
+  - `CSSValue`: Directly set a custom size using a CSS value.
 
 ### popout
 
@@ -122,13 +114,6 @@ Specifies the `padding-inline` value `gap` will not apply to `content-expand`.
   - `DEFAULT`: Default gap size.
   - `sm`, `md`, `lg`, `xl`, `2xl`: Responsive gap sizes.
   - `CSSValue`: Directly set a custom gap size using a CSS value.
-
-### maxWidth
-
-Sets the maximum width for the layout. **Note - `maxWidth` only work with `strategy: "auto"`**
-
-- Type: `CSSValue`
-- Default: `"900px"`
 
 ### prefix
 

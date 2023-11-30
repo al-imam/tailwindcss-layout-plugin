@@ -1,135 +1,138 @@
 const plugin = require("tailwindcss/plugin")
 
-function getMediaQuery({ gap, feature, popout, maxWidth, content, strategy }) {
-  const apply = strategy === "container"
-
-  return {
-    [`@media (min-width: ${content.sm.max})`]: {
-      "--padding-inline": gap.sm,
-      "--popout-extra-width": feature.sm,
-      "--feature-extra-width": popout.sm,
-      "--content-max-width": apply ? content.sm.width : maxWidth,
-    },
-
-    [`@media (min-width: ${content.md.max})`]: {
-      "--padding-inline": gap.md,
-      "--popout-extra-width": feature.md,
-      "--feature-extra-width": popout.md,
-      "--content-max-width": apply ? content.md.width : maxWidth,
-    },
-    [`@media (min-width: ${content.lg.max})`]: {
-      "--padding-inline": gap.lg,
-      "--popout-extra-width": feature.lg,
-      "--feature-extra-width": popout.lg,
-      "--content-max-width": apply ? content.lg.width : maxWidth,
-    },
-
-    [`@media (min-width: ${content.xl.max})`]: {
-      "--padding-inline": gap.xl,
-      "--popout-extra-width": feature.xl,
-      "--feature-extra-width": popout.xl,
-      "--content-max-width": apply ? content.xl.width : maxWidth,
-    },
-
-    [`@media (min-width: ${content["2xl"].max})`]: {
-      "--padding-inline": gap["2xl"],
-      "--popout-extra-width": feature["2xl"],
-      "--feature-extra-width": popout["2xl"],
-      "--content-max-width": apply ? content["2xl"].width : maxWidth,
-    },
-  }
+/**
+ * @param {Array<{ key: string, screen: any, gap: any, feature: any, popout: any, content: any }>} store
+ * @returns {{
+ *    [x: string]: {
+ *        "--padding-inline": string;
+ *        "--popout-extra-width": string;
+ *        "--feature-extra-width": string;
+ *        "--content-max-width": string;
+ *    };
+ * }}
+ */
+function getMediaQuery(store) {
+  return store
+    .map(({ screen, gap, feature, popout, content }) => {
+      return {
+        [`@media (min-width: ${screen})`]: {
+          "--padding-inline": gap,
+          "--popout-extra-width": feature,
+          "--feature-extra-width": popout,
+          "--content-max-width": content,
+        },
+      }
+    })
+    .reduce((acc, curr) => {
+      return Object.assign(acc, curr)
+    }, {})
 }
 
+/**
+ * @param {string} _className
+ * @returns {string}
+ */
 function sanitizeClassName(_className) {
   return _className.replace(/[^a-z0-9_-]/gi, "")
 }
 
+/**
+ * @param {string} _className
+ * @returns {string}
+ */
 function prefixClassName(_fix, _className) {
   if (!_fix) return `.${sanitizeClassName(_className)}`
   return `.${_fix}-${sanitizeClassName(_className)}`
 }
 
 const defaultScreensSize = {
-  DEFAULT: { max: "0rem", width: "100%" },
-  sm: { max: "640px", width: "640px" },
-  md: { max: "768px", width: "768px" },
-  lg: { max: "1024px", width: "1024px" },
-  xl: { max: "1280px", width: "1280px" },
-  "2xl": { max: "1536px", width: "1536px" },
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
 }
 
-function formatScreensValue(_value) {
-  return Object.keys(defaultScreensSize).map((key) => ({ [key]: _value }))
+const defaultScreens = Object.keys(defaultScreensSize)
+
+const defaultContentSizes = {
+  DEFAULT: "100%",
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
 }
 
-function formatMediaScreensSize(_value, _screen) {
-  if (!_value)
-    return { max: defaultScreensSize[_screen].max, width: defaultScreensSize[_screen].width }
-  if (typeof _value === "string") return { max: defaultScreensSize[_screen].max, width: _value }
-  if (typeof _value === "object" && _value.max && _value.width) {
-    return { max: _value.max, width: _value.width }
-  }
-
-  throw new Error(`${JSON.stringify(_value)} is not valid screen size value`)
+/**
+ * @param {string} _value
+ * @returns {{ DEFAULT: string, sm: string, md: string, lg: string, xl: string, "2xl": string }}
+ */
+function getDefaults(_value) {
+  return { DEFAULT: _value, sm: _value, md: _value, lg: _value, xl: _value, "2xl": _value }
 }
 
-function getScreensValue(_value) {
-  if (typeof _value === "string") return formatScreensValue(_value)
-  if (typeof _value === "object") {
-    for (const key in _value) {
-      if (typeof _value[key] !== "string") {
-        throw new Error(`${JSON.stringify(_value[key])} is not string`)
-      }
+/**
+ * @param {string | Object | undefined} _value
+ * @param {string | Object | undefined} _default
+ * @returns {{ DEFAULT: string, sm: string, md: string, lg: string, xl: string, "2xl": string }}
+ */
+function getScreensValue(_value, _default) {
+  if (typeof _value === "string") return getDefaults(_value)
+  if (!_value && typeof _default === "string") return getDefaults(_default)
+
+  const value = Object.assign({}, _default, _value)
+
+  for (const key in value) {
+    if (typeof value[key] !== "string") {
+      throw new Error(`${JSON.stringify(value[key])} is not valid screen value`)
     }
-
-    const obj = {}
-
-    obj.DEFAULT = _value.DEFAULT ?? "1rem"
-    obj.sm = _value.sm ?? obj.DEFAULT
-    obj.md = _value.md ?? obj.sm
-    obj.lg = _value.lg ?? obj.md
-    obj.xl = _value.xl ?? obj.lg
-    obj["2xl"] = _value["2xl"] ?? obj.xl
-
-    return obj
   }
 
-  throw new Error(`${JSON.stringify(_value ?? null)} is not valid screen value`)
+  const computed = {}
+
+  computed.DEFAULT = value.DEFAULT ?? "1rem"
+  computed.sm = value.sm ?? computed.DEFAULT
+  computed.md = value.md ?? computed.sm
+  computed.lg = value.lg ?? computed.md
+  computed.xl = value.xl ?? computed.lg
+  computed["2xl"] = computed["2xl"] ?? computed.xl
+
+  return computed
 }
 
-function getMediaScreensSizes(_value) {
-  if (typeof _value === "object") {
-    for (const key in _value) {
-      if (typeof _value[key] !== "string" && !(_value instanceof Object)) {
-        throw new Error(`${JSON.stringify(_value[key])} is not valid screen value`)
-      }
-    }
-
-    const obj = {}
-
-    obj.DEFAULT = formatMediaScreensSize(_value.DEFAULT, "DEFAULT")
-    obj.sm = formatMediaScreensSize(_value.sm, "sm")
-    obj.md = formatMediaScreensSize(_value.md, "md")
-    obj.lg = formatMediaScreensSize(_value.lg, "lg")
-    obj.xl = formatMediaScreensSize(_value.xl, "xl")
-    obj["2xl"] = formatMediaScreensSize(_value["2xl"], "2xl")
-
-    return obj
-  }
-
-  throw new Error(`'${JSON.stringify(_value ?? null)}' is not valid media screen size value`)
+/**
+ * @param {Object} _value
+ * @param {Object} _default
+ *
+ * @returns {{ sm: string, md: string, lg: string, xl: string, "2xl": string }}
+ */
+function getMediaScreensSizes(_value, _default) {
+  if (!_value) return Object.assign(defaultScreensSize, _default)
+  if (typeof _value !== "object") throw new Error("Invalid screen value")
+  return Object.assign(defaultScreensSize, _value)
 }
 
-const content = plugin.withOptions(function (options = {}) {
+const tailContent = plugin.withOptions(function (options = {}) {
   return function ({ addComponents, theme }) {
-    options.strategy ??= "auto"
-    options.gap = getScreensValue(options.gap ?? theme("container.padding") ?? "1rem")
-    options.maxWidth ??= "56.25rem"
-    options.content = getMediaScreensSizes(
-      options.content ?? theme("screens") ?? defaultScreensSize
-    )
-    options.popout = getScreensValue(options.popout ?? "2rem")
-    options.feature = getScreensValue(options.feature ?? "5rem")
+    const screen = getMediaScreensSizes(options.screens, theme("screens"))
+    const content = getScreensValue(options.content, defaultContentSizes)
+    const feature = getScreensValue(options.feature, "5rem")
+    const popout = getScreensValue(options.popout, "2rem")
+    const gap = getScreensValue(options.gap, theme("container.padding") ?? "1rem")
+
+    const store = []
+
+    for (const key in screen) {
+      store.push({
+        key: key,
+        screen: screen[key],
+        gap: gap[key],
+        feature: feature[key],
+        popout: popout[key],
+        content: content[key],
+      })
+    }
 
     if (options.prefix && /^[a-z][-a-z0-9_]*[0-9a-z]$/i.test(options.prefix) === false) {
       throw new Error(`Invalid prefix '${options.prefix}'. Prefix must be a valid CSS class name.`)
@@ -147,11 +150,10 @@ const content = plugin.withOptions(function (options = {}) {
       {
         [classContent]: Object.assign(
           {
-            "--content-max-width":
-              options.strategy === "auto" ? options.maxWidth : options.content.DEFAULT.width,
-            "--padding-inline": options.gap.DEFAULT,
-            "--popout-extra-width": options.popout.DEFAULT,
-            "--feature-extra-width": options.feature.DEFAULT,
+            "--content-max-width": content.DEFAULT,
+            "--padding-inline": gap.DEFAULT,
+            "--popout-extra-width": popout.DEFAULT,
+            "--feature-extra-width": feature.DEFAULT,
 
             "--gap": "var(--padding-inline, 1rem)",
             "--full": "minmax(var(--gap), 1fr)",
@@ -161,6 +163,7 @@ const content = plugin.withOptions(function (options = {}) {
 
             display: "grid",
             columnGap: "0 !important",
+            gridAutoRows: "max-content",
             gridTemplateColumns: `
             [full-start] 
               var(--full)
@@ -179,7 +182,7 @@ const content = plugin.withOptions(function (options = {}) {
             [full-end]
           `,
           },
-          getMediaQuery(options)
+          getMediaQuery(store.filter(({ key }) => defaultScreens.includes(key)))
         ),
       },
 
@@ -216,4 +219,4 @@ const content = plugin.withOptions(function (options = {}) {
   }
 })
 
-module.exports = content
+module.exports = tailContent
