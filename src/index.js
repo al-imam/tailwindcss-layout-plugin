@@ -157,7 +157,7 @@ const tailContent = plugin.withOptions(function (options = {}) {
 
             "--gap": "var(--padding-inline, 1rem)",
             "--full": "minmax(var(--gap), 1fr)",
-            "--content": "min(var(--content-max-width, 70ch), 100% - var(--gap) * 2);",
+            "--content": "min(var(--content-max-width, 70ch), 100% - var(--gap) * 2)",
             "--popout": "minmax(0, var(--popout-extra-width, 2rem))",
             "--feature": "minmax(0, var(--feature-extra-width, 5rem))",
 
